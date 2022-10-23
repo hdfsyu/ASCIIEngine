@@ -4,7 +4,10 @@
 #include <algorithm>
 using namespace std;
 struct vec3d {
-	float x, y, z;
+	float x = 0;
+	float y = 0;
+	float z = 0;
+	float w = 1;
 };
 struct triangle {
 	vec3d p[3];
@@ -54,15 +57,123 @@ private:
 	mat4x4 matp; // mat projection
 	vec3d vc; // camera
 	float t; // theta
-	void mmv(vec3d &i, vec3d &o, mat4x4 &m) {
-		o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
-		o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
-		o.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + m.m[3][2];
-		float w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + m.m[3][3];
-		if (w != 0.0f) {
-			o.x /= w; o.y /= w; o.z /= w;
-		}
+	vec3d mmv(mat4x4 &m, vec3d &i) {
+		vec3d v;
+		v.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + i.w * m.m[3][0];
+		v.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + i.w * m.m[3][1];
+		v.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + i.w * m.m[3][2];
+		v.w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + i.w * m.m[3][3];
+		return v;
 	}//multiply matrix vector
+	mat4x4 mmi()
+	{
+		mat4x4 matrix;
+		matrix.m[0][0] = 1.0f;
+		matrix.m[1][1] = 1.0f;
+		matrix.m[2][2] = 1.0f;
+		matrix.m[3][3] = 1.0f;
+		return matrix;
+	}// make matrix identity
+
+	mat4x4 mmx(float ar)
+	{
+		mat4x4 matrix;
+		matrix.m[0][0] = 1.0f;
+		matrix.m[1][1] = cosf(ar);
+		matrix.m[1][2] = sinf(ar);
+		matrix.m[2][1] = -sinf(ar);
+		matrix.m[2][2] = cosf(ar);
+		matrix.m[3][3] = 1.0f;
+		return matrix;
+	}//implements MMX TECHNOLOGY! im just kdding, make rotation matrix x pos
+
+	mat4x4 mmy(float ar)
+	{
+		mat4x4 matrix;
+		matrix.m[0][0] = cosf(ar);
+		matrix.m[0][2] = sinf(ar);
+		matrix.m[2][0] = -sinf(ar);
+		matrix.m[1][1] = 1.0f;
+		matrix.m[2][2] = cosf(ar);
+		matrix.m[3][3] = 1.0f;
+		return matrix;
+	}//make rotation matrix y pos
+
+	mat4x4 mmz(float ar)
+	{
+		mat4x4 matrix;
+		matrix.m[0][0] = cosf(ar);
+		matrix.m[0][1] = sinf(ar);
+		matrix.m[1][0] = -sinf(ar);
+		matrix.m[1][1] = cosf(ar);
+		matrix.m[2][2] = 1.0f;
+		matrix.m[3][3] = 1.0f;
+		return matrix;
+	}// make rotation matrix z pos
+
+	mat4x4 mmt(float x, float y, float z)
+	{
+		mat4x4 matrix;
+		matrix.m[0][0] = 1.0f;
+		matrix.m[1][1] = 1.0f;
+		matrix.m[2][2] = 1.0f;
+		matrix.m[3][3] = 1.0f;
+		matrix.m[3][0] = x;
+		matrix.m[3][1] = y;
+		matrix.m[3][2] = z;
+		return matrix;
+	}// make translation matrix
+
+	mat4x4 mmp(float fFovDegrees, float fAspectRatio, float fNear, float fFar)
+	{
+		float fFovRad = 1.0f / tanf(fFovDegrees * 0.5f / 180.0f * 3.14159f);
+		mat4x4 matrix;
+		matrix.m[0][0] = fAspectRatio * fFovRad;
+		matrix.m[1][1] = fFovRad;
+		matrix.m[2][2] = fFar / (fFar - fNear);
+		matrix.m[3][2] = (-fFar * fNear) / (fFar - fNear);
+		matrix.m[2][3] = 1.0f;
+		matrix.m[3][3] = 0.0f;
+		return matrix;
+	}//make projection matrix
+
+	mat4x4 mmm(mat4x4 &m1, mat4x4 &m2)
+	{
+		mat4x4 matrix;
+		for (int c = 0; c < 4; c++)
+			for (int r = 0; r < 4; r++)
+				matrix.m[r][c] = m1.m[r][0] * m2.m[0][c] + m1.m[r][1] * m2.m[1][c] + m1.m[r][2] * m2.m[2][c] + m1.m[r][3] * m2.m[3][c];
+		return matrix;
+	}//make matrix multiplication
+	vec3d vadd(vec3d &v1, vec3d &v2) {
+		return{ v1.x + v2.x, v1.y + v2.y, v1.z + v2.z };
+	}//add
+	vec3d vsub(vec3d &v1, vec3d &v2) {
+		return{ v1.x - v2.x, v1.y - v2.y, v1.z - v2.z };
+	}//subtract
+	vec3d vmul(vec3d &v1, float k) {
+		return{ v1.x * k, v1.y * k, v1.z * k };
+	}//multiply
+	vec3d vdiv(vec3d &v1, float k) {
+		return{ v1.x / k, v1.y / k, v1.z / k };
+	}//divide
+	float vdp(vec3d &v1, vec3d &v2) {
+		return v1.x*v2.x + v1.y*v2.y + v1.z * v2.z;
+	}//dot product
+	float vlength(vec3d &v) {
+		return sqrtf(vdp(v, v));
+	}// vector length
+	vec3d vn(vec3d &v) {
+		float l = vlength(v);
+		return{ v.x / l,v.y / l,v.z / l };
+	}//normalise
+	vec3d vcp(vec3d &v1, vec3d &v2) {
+		vec3d v;
+		v.x = v1.y * v2.z - v1.z * v2.y;
+		v.y = v1.z * v2.x - v1.x * v2.z;
+		v.z = v1.x * v2.y - v1.y * v2.x;
+		return v;
+	}
 	CHAR_INFO GetColour(float lum)
 	{
 		short bg_col, fg_col;
@@ -97,89 +208,62 @@ private:
 	}
 public:
 	bool ouc() override {
-		meshCube.lobj("objs/ball.obj"); // change this to whatever obj you want
+		meshCube.lobj("objs/teapot.obj"); // change this to whatever obj you want
 		// list of objects:
 		/*
 		objs/sanik.obj
 		objs/ball.obj
 		objs/cube.obj
 		objs/telephone.obj
-		the default intensity is 0.5f
-		if you are using cube.obj, go to the light intensity variable and change it to 8.0f (use the find tool in your IDE and search up intensity)
-		if you are using telephone.obj, go to the light intensity variable and change it to 0.09f (use the find tool in your IDE and search up intensity)
+		objs/teapot.obj
 		*/
 		// TODO: maybe add more objects
-		float n = 0.1f;// near
-		float f = 1000.0f;//far
-		float fov = 90.0f;
-		float ar = (float)sh() / (float)sw();//im sorry there is no AR, its the aspect ratio
-		float fovr = 1.0f / tanf(fov * 0.5f / 180.0f * 3.14159f);//tangent calculation
-		matp.m[0][0] = ar * fovr;
-		matp.m[1][1] = fovr;
-		matp.m[2][2] = f / (f - n);
-		matp.m[3][2] = (-f * n) / (f - n);
-		matp.m[2][3] = 1.0f;
-		matp.m[3][3] = 0.0f;
+		matp = mmp(90.0f, (float)sh() / (float)sw(), 0.1f, 1000.0f);
 		return true;
 	}
 	bool oup(float fet) override{
 		Fill(0, 0, sw(), sh(), PIXEL_SOLID, FG_BLACK);
 		mat4x4 matRotZ, matRotX;
 		t += 1.0f * fet;
-		matRotZ.m[0][0] = cosf(t);
-		matRotZ.m[0][1] = sinf(t);
-		matRotZ.m[1][0] = -sinf(t);
-		matRotZ.m[1][1] = cosf(t);
-		matRotZ.m[2][2] = 1;
-		matRotZ.m[3][3] = 1;
-		matRotX.m[0][0] = 1;
-		matRotX.m[1][1] = cosf(t * 0.5f);
-		matRotX.m[1][2] = sinf(t * 0.5f);
-		matRotX.m[2][1] = -sinf(t * 0.5f);
-		matRotX.m[2][2] = cosf(t * 0.5f);
-		matRotX.m[3][3] = 1;
+		matRotZ = mmz(t*0.5f);
+		matRotX = mmx(t);
+		mat4x4 matTrans;
+		matTrans = mmt(0.0f, 0.0f, 16.0f);
+		mat4x4 world;
+		world = mmi();
+		world = mmm(matRotZ, matRotX);
+		world = mmm(world, matTrans);
 		vector<triangle> ttr; //triangles to raster
 		for (auto tri : meshCube.tris) {
-			triangle trip, trit, triz, trizx; //triangle projected, triangle translated, triangle rotated Z and triangle rotated ZX
-			mmv(tri.p[0], triz.p[0], matRotZ);
-			mmv(tri.p[1], triz.p[1], matRotZ);
-			mmv(tri.p[2], triz.p[2], matRotZ);
-			mmv(triz.p[0], trizx.p[0], matRotX);
-			mmv(triz.p[1], trizx.p[1], matRotX);
-			mmv(triz.p[2], trizx.p[2], matRotX);
-			trit = trizx;
-			trit.p[0].z = trizx.p[0].z + 8.0f;
-			trit.p[1].z = trizx.p[1].z + 8.0f;
-			trit.p[2].z = trizx.p[2].z + 8.0f;
+			triangle trip, trit; //triangle projected and triangle transformed
+			trit.p[0] = mmv(world, tri.p[0]);
+			trit.p[1] = mmv(world, tri.p[1]);
+			trit.p[2] = mmv(world, tri.p[2]);
 			vec3d normal, line1, line2;
-			line1.x = trit.p[1].x - trit.p[0].x;
-			line1.y = trit.p[1].y - trit.p[0].y;
-			line1.z = trit.p[1].z - trit.p[0].z;
-			line2.x = trit.p[2].x - trit.p[0].x;
-			line2.y = trit.p[2].y - trit.p[0].y;
-			line2.z = trit.p[2].z - trit.p[0].z;
-			normal.x = line1.y * line2.z - line1.z * line2.y;
-			normal.y = line1.z * line2.x - line1.x * line2.z;
-			normal.z = line1.x * line2.y - line1.y * line2.x;
-			float l = sqrtf(normal.x*normal.x + normal.y*normal.y + normal.z*normal.z);
-			normal.x /= 1; normal.y /= 1; normal.z /= 1;
-			if (normal.x*(trit.p[0].x - vc.x) + normal.y*(trit.p[0].y - vc.y)+normal.z*(trit.p[0].z - vc.z) < 0.0f){
+			line1 = vsub(trit.p[1], trit.p[0]);
+			line2 = vsub(trit.p[2], trit.p[0]);
+			normal = vcp(line1, line2);
+			normal = vn(normal);
+			vec3d vcr = vsub(trit.p[0], vc); // adds vcr capabilities! im just kidding, this is the camera ray
+			if (vdp(normal, vcr) < 0.0f){
 				vec3d lightd = { 0.0f, 0.0f, -1.0f }; //light direction
-				float l = sqrtf(lightd.x*lightd.x + lightd.y*lightd.y + lightd.z*lightd.z);
-				float intensity = 0.5f; // light intensity variable
-				lightd.x /= intensity; lightd.y /= intensity; lightd.z /= intensity;
-				float dp = normal.x*lightd.x + normal.y*lightd.y + normal.z*lightd.z;
+				lightd = vn(lightd);
+				float dp = max(0.5f, vdp(lightd, normal));
 				CHAR_INFO c = GetColour(dp);
 				trit.col = c.Attributes;
 				trit.sym = c.Char.UnicodeChar;
-				mmv(trit.p[0], trip.p[0], matp);
-				mmv(trit.p[1], trip.p[1], matp);
-				mmv(trit.p[2], trip.p[2], matp);
+				trip.p[0] = mmv(matp, trit.p[0]);
+				trip.p[1] = mmv(matp, trit.p[1]);
+				trip.p[2] = mmv(matp, trit.p[2]);
 				trip.col = trit.col;
 				trip.sym = trit.sym;
-				trip.p[0].x += 1.0f; trip.p[0].y += 1.0f;
-				trip.p[1].x += 1.0f; trip.p[1].y += 1.0f;
-				trip.p[2].x += 1.0f; trip.p[2].y += 1.0f;
+				trip.p[0] = vdiv(trip.p[0], trip.p[0].w);
+				trip.p[1] = vdiv(trip.p[1], trip.p[1].w);
+				trip.p[2] = vdiv(trip.p[2], trip.p[2].w);
+				vec3d ov = { 1,1,0 }; //offset view
+				trip.p[0] = vadd(trip.p[0], ov);
+				trip.p[1] = vadd(trip.p[1], ov);
+				trip.p[2] = vadd(trip.p[2], ov);
 				trip.p[0].x *= 0.5f * (float)sw();
 				trip.p[0].y *= 0.5f * (float)sh();
 				trip.p[1].x *= 0.5f * (float)sw();
@@ -199,7 +283,7 @@ public:
 				trip.p[1].x, trip.p[1].y,
 				trip.p[2].x, trip.p[2].y,
 				trip.sym, trip.col);
-			DrawTriangle(trip.p[0].x, trip.p[0].y, trip.p[1].x, trip.p[1].y, trip.p[2].x, trip.p[2].y, PIXEL_SOLID, FG_YELLOW); //comment this line to disable wireframes on the cube (wireframes are good for debugging)
+			//DrawTriangle(trip.p[0].x, trip.p[0].y, trip.p[1].x, trip.p[1].y, trip.p[2].x, trip.p[2].y, PIXEL_SOLID, FG_YELLOW); //comment this line to disable wireframes on the cube (wireframes are good for debugging)
 		}
 		return true;
 	}
