@@ -15,6 +15,8 @@ You can't play this in Windows Terminal, use an admin command prompt to play the
 Rewrite is done!
 
 You have to copy the objs directory which is located at projectdir/ASCIIEngine/objs in the same folder where the exe is located
+
+There is a web version [here](https://hdfsyu.itch.io/ASCIIEngine)
 # Features
 Ability to load OBJ files!
 
