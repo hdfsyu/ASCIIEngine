@@ -8,18 +8,20 @@ Click on Build > Build Solution, and the executable will be in projectdir/x64/bu
 ## Running
 Click on Local Windows Debugger to start the game
 # Notes
-No controls, because this is kinda a 3D demo
-
 You can't play this in Windows Terminal, use an admin command prompt to play the game.
 
-I'm going to do a little rewrite of the code when this is finished.
+~I'm going to do a little rewrite of the code when this is finished.~
+
+Rewrite is done! But it made the game more laggy...
 
 You have to copy the objs directory which is located at projectdir/ASCIIEngine/objs in the same folder where the exe is located
 # Features
 Ability to load OBJ files!
 
-Soon... controls...
+Controls are arrow keys to move camera and go up and down, WASD to move camera and go forward and backwards.
 
-This all runs in the terminal!
+~This all runs in the terminal!~
+
+Fine, I lied. It's not completely ASCII (actually I don't think it even is ASCII) it WAS ASCII but now it isnt... :(
 
 This project is licensed under GNU GPLv3. Freedom!
