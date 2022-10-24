@@ -12,7 +12,7 @@ You can't play this in Windows Terminal, use an admin command prompt to play the
 
 ~I'm going to do a little rewrite of the code when this is finished.~
 
-Rewrite is done! But it made the game more laggy...
+Rewrite is done!
 
 You have to copy the objs directory which is located at projectdir/ASCIIEngine/objs in the same folder where the exe is located
 # Features
