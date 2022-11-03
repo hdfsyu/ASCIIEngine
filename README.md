@@ -17,6 +17,8 @@ Rewrite is done!
 You have to copy the objs directory which is located at projectdir/ASCIIEngine/objs in the same folder where the exe is located
 
 There is a web version [here](https://hdfsyu.itch.io/ASCIIEngine)
+
+You can type `winget install ASCIIEngine` because Microsoft accepted my winget manifest!
 # Features
 Ability to load OBJ files!
 
