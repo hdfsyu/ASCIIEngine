@@ -18,7 +18,7 @@ You have to copy the objs directory which is located at projectdir/ASCIIEngine/o
 
 There is a web version [here](https://hdfsyu.itch.io/ASCIIEngine)
 
-You can type `winget install ASCIIEngine` because Microsoft accepted my winget manifest!
+You can type `winget install ASCIIEngine` because Microsoft accepted my winget manifest! (you have to run it from C:\Program Files (x86)\hdfsyu-apps\ASCIIEngine\)
 # Features
 Ability to load OBJ files!
 
