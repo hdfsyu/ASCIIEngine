@@ -1,14 +1,10 @@
 name: Build and Release
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-  release:
-    types: [released]
-jobs:
   workflow_dispatch:
+    
+jobs:
+  winget_submit:
     runs-on: windows-latest
     steps:
       - uses: vedantmgoyal2009/winget-releaser@v1
